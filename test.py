@@ -11,12 +11,12 @@ import division
 lang = 'chinese'
 
 
-class MainInterface(division.Interface):
+class TestInterface(division.Interface):
     """
     i think the Interface also should be a specific type of Division.
     """
     def __init__(self):
-        super(MainInterface, self).__init__()
+        super(TestInterface, self).__init__()
         self.load_configure_and_resource()
 
         self._render_debug = True
@@ -36,7 +36,7 @@ def auto_last_ops_time(caller):
 
 # test
 if __name__ == "__main__":
-    i = MainInterface()
+    i = TestInterface()
     i.registry(division.Title(i.interface_lang_dict['title']))
     print(i.get_div_name())
     print("recursive depth:", i.get_recursive_depth())
