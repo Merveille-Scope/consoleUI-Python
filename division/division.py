@@ -168,6 +168,9 @@ class Division:
             self._item_to_print += "1. %s" % div
 
     def print_div(self):
+        """
+        but using either ContainerDiv or ContentDiv is encouraged.
+        """
         # print("debug: %s.print_div()" % id(self))
         if self._container:
             return self._container_rendering()
@@ -179,6 +182,7 @@ class Division:
         this should try to format all div in the container.
         :return: formatted div string
         """
+        # self._content_render = ContainerRender(self)
         rendered_div_string = ''
         for div in self._container:
             if rendered_div_string:
@@ -192,6 +196,7 @@ class Division:
         consider this div is a string type div.
         :return: formatted div string
         """
+        # self._content_render = ContentRender(self)  # not sure what to do with this.
         return self._item_to_print if self._item_to_print else "empty division: %s" % self.get_div_name()
         # i need a formatter class to automatically handle with ordinary object.
 
@@ -211,13 +216,46 @@ class Division:
 
 
 class ContentDivision(Division):
+    def __init__(self, parent_div=None, **other_parameters):
+        super().__init__(parent_div, **other_parameters)
+        self.content_render = ContentRender(self)
+
     def _registry_div(self, div, callback=None, *args):
         raise e.NotContainerError(self)
 
+    def get_raw_content(self):
+        return self._item_to_print
+
+    def print_div(self) -> list:
+        """
+        this method would return list of lines.
+        """
+        return self._div_rendering()
+
+    def _div_rendering(self):
+        return self.content_render.get_format_content()
+
 
 class ContainerDivision(Division):
+    def __init__(self, parent_div=None, **other_parameters):
+        super().__init__(parent_div, **other_parameters)
+        self._content_render = ContainerRender(self)
+
     def _registry_content(self, content, callback=None, *args):
         raise e.ContainerError(self)
+
+    def get_raw_content_list(self):
+        return self._container
+
+    def print_div(self):
+        return self._container_rendering()
+
+    def _container_rendering(self):
+        """
+        this should try to format all div in the container.
+        :return: formatted div string
+        """
+        return self._content_render.get_format_string_block()
 
 
 # this are just test.

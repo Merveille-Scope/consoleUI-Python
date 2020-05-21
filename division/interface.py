@@ -33,7 +33,7 @@ class Interface(RootDivision):
 
         self._item_to_print += '\n%s\n' % super(Interface, self).print_div()
 
-        self._item_to_print += '=' * (self._div_width if self._div_width else 80)
+        # self._item_to_print += '=' * (self._div_width if self._div_width else 80)  # bottom line is unnecessary.
 
     def load_configure_and_resource(self):
         """
