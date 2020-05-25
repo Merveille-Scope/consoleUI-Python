@@ -1,27 +1,58 @@
+class TempDiv:
+    _render_debug = False
+    display = 'block'  # or 'float'
+
+    container = []
+    renderer = None
+
+    def __init__(self):
+        self._size = {'width': 30, 'height': 5}
+
+    def get_raw_content(self, cursor="long_str"):
+        string_dict = {'long_str': 'She dressed me with pantyhose and a pair of my panties '
+                                   'in a pink lingerie and sat me on the side of the bed. '
+                                   'I had a little more space than I would normally have '
+                                   'for a girl and she had one knee up against the wall.',
+                       'short_str': 'She dressed me with pantyhose and a pair of my panties',
+                       'one_line_str': 'string in line.',
+                       'chinese_str': '对我个人而言，人类之光连裤袜不仅仅是一个重大的事件，还可能会改变我的人生。'
+                                      '就我个人来说, 人类之光连裤袜对我的意义, 不能不说非常重大. 本人也是经过了深思熟虑,在每个日日夜夜思考这个问题.'
+                                      '克劳斯·莫瑟爵士在不经意间这样说过 : 教育需要花费钱，而无知也是一样。'
+                                      '所谓人类之光连裤袜, 关键是人类之光连裤袜需要如何写. 洛克曾经提到过 : 学到很多东西的诀窍，就是一下子不要学很多。'
+                                      '带着这句话, 我们还要更加慎重的审视这个问题: 我认为, 在这种困难的抉择下, 本人思来想去, 寝食难安.'
+                                      '可是，即使是这样，人类之光连裤袜的出现仍然代表了一定的意义。 '
+                       }
+        return string_dict[cursor]
+
+    def print_div(self):
+        pass
+
+    @property
+    def size(self):
+        return self._size
+
+
 class Render:
-    def __init__(self, content, render_debug, **div_styles):
+    def __init__(self, div_instance: TempDiv, row_sep=' | ', line_sep=''):
         """
-        :param render_debug: if it needs to print any debugging information.
-        :param div_styles: about div size, separators and others.
+        :param div_instance: the div which initializes Render.
+        :param row_sep: a pattern to separate two div in same line.
+        :param line_sep: a pattern to separate div in next line.
         """
-        self.div_styles = div_styles
-        self.debug = render_debug
-        self.content = content
-        self.width = div_styles['width'] if 'width' in div_styles else 0
-        self.height = div_styles['height'] if 'height' in div_styles else 0
+        self.div_instance = div_instance
+        self.debug = self.div_instance._render_debug
+        self._row_sep = row_sep
+        self._line_sep = line_sep
+        self.max_size = self.div_instance.size
 
-    def set_size(self, **height_or_width_in_int: int):
-        self.width = self.width if 'width' not in height_or_width_in_int else height_or_width_in_int['width']
-        self.height = self.height if 'height' not in height_or_width_in_int else height_or_width_in_int['height']
+    def render(self):
+        return self.div_instance.print_div()
 
-    ########################################################################################
-    #   two static methods to measure length of a character/string appearing on console.   #
-    ########################################################################################
     @staticmethod
     def string_length(string):
         length = 0
         for char in string:
-            length += ContentRenderer.character_width(char)
+            length += ContentRender.character_width(char)
         return length
 
     @staticmethod
@@ -36,31 +67,23 @@ class Render:
             chara_width = 1
         return chara_width
 
-    def _get_string_list(self) -> list:
-        content_string = self.content.__str__()
-        string_lines = self._format_content_according_to_width(content_string)
-        string_lines = self._format_content_according_to_height(string_lines)
-        string_lines = self._fill_last_line(string_lines)
 
+class ContentRender(Render):
+    temp_raw_content_sel = 'long_str'
+
+    def __init__(self, div_instance):
+        super().__init__(div_instance)
+        self.content = self.div_instance.get_raw_content(self.temp_raw_content_sel)  # information of string.
+        self.content = self.content.replace("\n", " ").replace("\t", "    ")  # these invisible chars are not expected.
+
+    def get_format_content(self):
+        self.content = self.div_instance.get_raw_content(self.temp_raw_content_sel)
+        string_lines = self._format_content_according_to_width()
+        string_lines = self._format_content_according_to_height(string_lines)
         return string_lines
 
-    def _get_string_block(self) -> str:
-        content_string = self.content.__str__()
-        string_lines = self._format_content_according_to_width(content_string)
-        string_lines = self._format_content_according_to_height(string_lines)
-        string_lines = self._fill_last_line(string_lines)
-        string_block = ''
-        for line in string_lines:
-            if string_block:
-                string_block += '\n'
-            string_block += line
-        return string_block
-
-    #
-    #   some mysterious methods which process given string paragraph into
-    #
-    def _format_content_according_to_width(self, content_string):
-        char_lines = self._cut_string_in_char_lines(content_string)
+    def _format_content_according_to_width(self):
+        char_lines = self._cut_string_in_char_lines()
         string_lines = []
         for char_line in char_lines:
             line = ''
@@ -70,39 +93,24 @@ class Render:
         return string_lines
 
     def _format_content_according_to_height(self, string_lines):
-        div_height = self.height
+        div_height = self.max_size['height']
         total_lines = len(string_lines)
         if total_lines > div_height:
             string_lines = string_lines[:div_height - 1]
             folding_info = "%s more line(s) folded..." % (total_lines - div_height)
-            if self.width >= self.string_length(folding_info):
+            if self.max_size['width'] >= self.string_length(folding_info):
                 string_lines.append(folding_info)
-            elif self.width >= 3:
+            elif self.max_size['width'] >= 3:
                 string_lines.append('...')
             else:
                 string_lines.append('~')
         return string_lines
 
-    def _fill_last_line(self, string_lines):
-        # the last line needs to be filled with ' '
-        last_line_length = self.string_length(string_lines[-1])
-        div_width = self.width
-        if last_line_length < div_width:
-            spaces_to_fill = div_width - last_line_length
-            string_lines[-1] += ' ' * spaces_to_fill
-        return string_lines
+    def _cut_string_in_char_lines(self):
+        max_line_width = self.max_size['width']
+        total_length = self.string_length(self.content)
 
-    def _cut_string_in_char_lines(self, string):
-        """
-        this method cut raw string content into a list of single characters.
-        """
-        string = string.replace("\n", " ").replace("\t", "    ")
-        # invisible chars like "\n" and "\t" are not expected, because their length on console is hard to express.
-
-        max_line_width = self.width
-        total_length = self.string_length(self.content.__str__())
-
-        char_list = list(self.content.__str__())
+        char_list = list(self.content)
         char_lines = []  # list of character_lists, each character_list contains characters in one line.
         char_line = []  # single line of characters.
         current_line_width = 0
@@ -130,58 +138,13 @@ class Render:
 
         return char_lines
 
-        ###################################
-        #   output string lines in list   #
-        ###################################
-    @property
-    def string_list(self):
-        return self._get_string_list()
-
-    @property
-    def string_block(self):
-        return self._get_string_block()
-
-
-class ContentRenderer(Render):
-    # content = ""
-    # max_size = {'height': 24, 'width': 80}
-
-    def __init__(self, content, render_debug, **div_styles):
-        """
-        the style params accepts some style control parameters.
-            height
-            width
-
-            one_line: shrink the content to 1 line. if string length is greater than width, trim the line to fit width.
-                one_line=True or whatever value that might be taken as True will be accepted.
-            trim_line: must give value in integer. will cut every line before formatted content returns.
-                example:
-                    [
-                        'string line 1.',
-                        'string line 2.'
-                    ]
-                    when trim_line=4:
-                    [
-                        'string lin',
-                        'string lin'
-                    ]
-                    when trim_line=-2:
-                    [
-                        'ring line 1.',
-                        'ring line 2.'
-                    ]
-        """
-        super().__init__(content, render_debug, **div_styles)
-
 
 class ContainerRender(Render):
-    def __init__(self, content_list, render_debug, row_sep='|', line_sep='', **div_styles):
-        content = content_list
-        super().__init__(content, render_debug, **div_styles)
-        self._row_sep = row_sep
-        self._line_sep = line_sep
+    def __init__(self, div_instance):
+        super().__init__(div_instance)
+        self.div_list = self.div_instance
 
-    def get_format_content(self) -> list:
+    def get_format_content(self):
         """
         returns a list of lines (which is called "string block") that can be directly print line.
         this list should be like:
@@ -224,13 +187,13 @@ class ContainerRender(Render):
         line_index = 0
         while line_index < len(string_block_list):
             string_length = self.string_length(string_block_list[line_index])
-            if string_length < self.width:
-                string_block_list[line_index] += ' ' * (self.width - string_length)
+            if string_length < self.max_size['width']:
+                string_block_list[line_index] += ' ' * (self.max_size['width'] - string_length)
             line_index += 1
         return string_block_list
 
     def _form_div_lines(self):
-        container = self.content
+        container = self.div_instance.container
         current_line = []
         div_lines = []
         for div in container:
@@ -294,50 +257,68 @@ class ContainerRender(Render):
                 div_list = div_line['divs']
                 for div in div_list:
                     cdli = 0  # current div line index
-                    for string_line in div._renderer._get_string_list():
+                    for string_line in div.renderer._get_string_list():
                         string_block[cli+cdli].append(string_line)
                         cdli += 1
                 # go to the next line.
                 cli += div_line['height']
         return string_block
 
-    # def render(self) -> str:
-    #     """
-    #     by calling render, it will return a formatted string.
-    #     """
-    #     _item_to_print = ''
-    #     self._content_layout()
-    #     return _item_to_print
-    #
-    # def _content_layout(self):
-    #     container_size = self.div_instance.size
-    #     contents_list = self.get_contents_list()
-    #     self._content_row_layout(container_size, contents_list)
-    #
-    # def _content_row_layout(self, container_size, contents_list):
-    #     # check if
-    #
-    #     # content_lines: a list of content line.
-    #     # a content_line contains content which are supposed to be aligned in one line.
-    #     content_lines = []
-    #     content_line = []
-    #     line_width = container_size['width']
-    #     # be careful that there's an "s".
-    #     content_line_width = 0
-    #     content_index = 0
-    #
-    #     while content_index <= len(contents_list):
-    #         content = contents_list[content_index]
-    #         content_line_width += content['width']
-    #         if content_line_width > container_size['width']:
-    #             content_line.append(content)
-    #
-    # def get_contents_list(self):
-    #     contents_size = []
-    #     for content in self.div_instance._container:
-    #         height = content.get_size('height')
-    #         width = content.get_size('width')
-    #         contents_size.append({'div': content, 'name': content.name, 'height': height, 'width': width})
-    #     return contents_size
 
+# test for content render
+d1 = TempDiv()
+d1._size['width'] = 20
+d1._size['height'] = 5
+content_r = ContentRender(d1)
+d1.render = content_r
+fsl = d1.render.get_format_content()
+print(d1)
+for line in fsl:
+    print(line)
+
+d2 = TempDiv()
+d2._size['width'] = 40
+d2._size['height'] = 5
+d2.render = ContentRender(d2)
+d2.render.temp_raw_content_sel = 'chinese_str'
+fsl = d2.render.get_format_content()
+print(d2)
+for line in fsl:
+    print(line)
+
+d3 = TempDiv()
+d3.display = 'float'
+d3._size['width'] = 20
+d3._size['height'] = 5
+d3.render = ContentRender(d3)
+d3.render.temp_raw_content_sel = 'short_str'
+fsl = d3.render.get_format_content()
+print(d3)
+for line in fsl:
+    print(line)
+
+d4 = TempDiv()
+d4._size['width'] = 15
+d4._size['height'] = 5
+d4.render = ContentRender(d4)
+d4.render.temp_raw_content_sel = 'one_line_str'
+fsl = d4.render.get_format_content()
+print(d4)
+for line in fsl:
+    print(line)
+
+
+# test for container render
+container_div = TempDiv()
+container_div.container = [d1, d2, d3, d4]
+container_r = ContainerRender(container_div)
+container_div.renderer = container_r
+
+string_block = container_div.renderer.get_format_content()
+print(len(string_block))
+for item in string_block:
+    print(item)
+line_block = container_div.renderer.get_format_string_block()
+for line in line_block:
+    print(line)
 

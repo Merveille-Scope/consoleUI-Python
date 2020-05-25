@@ -1,6 +1,6 @@
 # base class of division
 from .division_exceptions import exceptions as e
-from .render import ContainerRender, ContentRender
+from .render import ContainerRender, ContentRenderer
 
 
 MAXIMUM_DIV_COUNT = 1000
@@ -218,7 +218,7 @@ class Division:
 class ContentDivision(Division):
     def __init__(self, parent_div=None, **other_parameters):
         super().__init__(parent_div, **other_parameters)
-        self.content_render = ContentRender(self)
+        self.content_render = ContentRenderer(self.get_raw_content(), self._render_debug, self)
 
     def _registry_div(self, div, callback=None, *args):
         raise e.NotContainerError(self)
@@ -233,7 +233,7 @@ class ContentDivision(Division):
         return self._div_rendering()
 
     def _div_rendering(self):
-        return self.content_render.get_format_content()
+        return self.content_render._get_string_list()
 
 
 class ContainerDivision(Division):

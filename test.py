@@ -36,6 +36,13 @@ def auto_last_ops_time(caller):
 
 # test
 if __name__ == "__main__":
+    register_string = '对我个人而言，人类之光连裤袜不仅仅是一个重大的事件，还可能会改变我的人生。' \
+                        '就我个人来说, 人类之光连裤袜对我的意义, 不能不说非常重大. 本人也是经过了深思熟虑,在每个日日夜夜思考这个问题.'\
+                        '克劳斯·莫瑟爵士在不经意间这样说过 : 教育需要花费钱，而无知也是一样。'\
+                        '所谓人类之光连裤袜, 关键是人类之光连裤袜需要如何写. 洛克曾经提到过 : 学到很多东西的诀窍，就是一下子不要学很多。'\
+                        '带着这句话, 我们还要更加慎重的审视这个问题: 我认为, 在这种困难的抉择下, 本人思来想去, 寝食难安.'\
+                        '可是，即使是这样，人类之光连裤袜的出现仍然代表了一定的意义。 '
+
     i = TestInterface()
     i.registry(division.Title(i.interface_lang_dict['title']))
     print(i.get_div_name())
@@ -54,12 +61,6 @@ if __name__ == "__main__":
     main_part.set_size(height=20, width=30)
     # print(main_part.get_cell_width())
     # main_part.registry("\n\tthis is main part of the interface\n")
-    register_string = '对我个人而言，人类之光连裤袜不仅仅是一个重大的事件，还可能会改变我的人生。' \
-                        '就我个人来说, 人类之光连裤袜对我的意义, 不能不说非常重大. 本人也是经过了深思熟虑,在每个日日夜夜思考这个问题.'\
-                        '克劳斯·莫瑟爵士在不经意间这样说过 : 教育需要花费钱，而无知也是一样。'\
-                        '所谓人类之光连裤袜, 关键是人类之光连裤袜需要如何写. 洛克曾经提到过 : 学到很多东西的诀窍，就是一下子不要学很多。'\
-                        '带着这句话, 我们还要更加慎重的审视这个问题: 我认为, 在这种困难的抉择下, 本人思来想去, 寝食难安.'\
-                        '可是，即使是这样，人类之光连裤袜的出现仍然代表了一定的意义。 '
     main_part.registry(register_string)
     # print(main_part.get_cell_width())
     i.registry(main_part)
@@ -74,6 +75,11 @@ if __name__ == "__main__":
     print("recursive depth:", c.get_recursive_depth())
     print("division ID:", c.get_div_id())
     i.refresh()
+
+    # test_part = division.ContentDivision()
+    # test_part.registry(register_string)
+    # test_part.set_size(width=50)
+    # print(test_part.print_div())
 
 
 # TODO: the calling path has become a chaos. must reform the division. remove useless derived class.

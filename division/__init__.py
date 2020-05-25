@@ -1,4 +1,8 @@
-from .division import Division, ContentDivision, ContainerDivision
+# from .division import Division, ContentDivision, ContainerDivision
+
+# TODO: reforming divisions. once done, override .division by .division_2 and uncomment the first line.
+from .division_2 import Division, ContentDivision, ContainerDivision
+
 from .title import Title
 from .banner import Banner
 from .interface import Interface
