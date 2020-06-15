@@ -20,43 +20,50 @@ class ContainerRenderer(Renderer):
     """
     def __init__(self, height, width, separator=' | ', **render_styles):
         super().__init__(height, width, **render_styles)
-        self._container = []
+        self._division_lines = []  # a list of string line.
+        # the division line is a 2-dim list that shows alignment of divisions.
+        # multiple lines could be in division lines. each line is a list of divisions.
         self._separator = separator  # this is to divide two divisions in one line.
 
-    def append_div(self, division):
-        self._container.append(division)
+    def append_string_list(self, string_list, **styles):
+        if styles.get('display') == "float":
+            self._same_line_append(string_list)
+        else:
+            self._next_line_append(string_list)
 
-    def render(self):
-        # check div's display, if it's float, set in same line. if not, the next line.
-        division_lines = []  # every line is expressed by a list called current_line.
-        current_line = []
-        for div in self._container:
-            if div.styles and ['display'] in div.styles:
-                # do something to put two divisions in one line.
-                # remember to check if these two division is too wide to be in one line
-                # in that case, put the division in next line.
-                # don't forget to add separator between them.
-                pass
-            else:
-                if current_line:
-                    division_lines.append(current_line)
-                    current_line = []  # must assign a new line, not clear.
-                    # then go to the current line appending.
-                    # appending current line should be a function.
+    def _same_line_append(self, string_list):
+        """
+        this method tries to append a string block at the same division line.
+        """
+        if self._division_lines:
+            self._division_lines[-1].append(string_list)
+        else:
+            self._division_lines.append([string_list])
 
-    def _current_line_append(self, current_line, division):
-        # this will check if the div could fit into current line.
-        pass
+    def _next_line_append(self, string_list):
+        """
+        this will simply append the string list to the next division line.
+        """
+        self._division_lines.append([string_list])
+
+    def render(self, mode):
+        if mode == 'format_string_list':
+            return  self.format_string_list
+        elif mode == 'format_string':
+            return  self.format_string
+
+    @property
+    def format_string_list(self):
+        string_block_list = []
+        while self._division_lines:
+            current_div_line = self._division_lines.pop(0)
+            self._align_current_div_line
+        return
+
+    @@property
+    def format_string(self):
+        return
 
 
 
-
-        current_line = []
-        division_lines = []
-        available_width = self._render_styles['width']
-        for div in self._container:
-            if div.size['width'] <= available_width:  # if the width of the new div is able to fit in this line.
-                current_line.append(div)
-                available_width -= div.size['width']
-            elif not self._container:
 

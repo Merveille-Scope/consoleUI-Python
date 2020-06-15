@@ -1,4 +1,4 @@
-# consoleUI-Python
+# ConsoleUI-Python
 
 Using this module to print a good looking character-based UI on your console.
 
@@ -26,7 +26,7 @@ interface.register(container)
 interface.refresh()
 ```
 
-# Divisions
+## Divisions
 
 This module is invoked by HTML. By registering divisions to separate your console into several blocks and print information on them respectively.
 

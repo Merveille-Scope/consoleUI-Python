@@ -121,6 +121,8 @@ class StringBlock:
             # this method is not useful, suppressed.
             return self._basic_w_trim(string_list)
         # else, some special trim method.
+        else:
+            return string_list
     
     def _basic_h_trim(self, string_list):
         # TODO: trim by height
@@ -221,6 +223,17 @@ class StringBlock:
             chara_width = 1
         return chara_width
 
+    # this might not be the right place.
+    # def same_line_append(self, format_string_list_trimmed):
+    #     new_string_list = []
+    #     first_string_list = self.format_string_list_trimmed
+    #     appending_string_list = format_string_list_trimmed
+    #     while first_string_list or appending_string_list:  # one of them has string lines not popped
+    #
+    #
+    # def next_line_append(self, format_string_list_trimmed):
+    #     pass
+    #
 
 if __name__ == "__main__":
     string = """

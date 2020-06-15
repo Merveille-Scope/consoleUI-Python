@@ -20,7 +20,7 @@ class ContentRenderer(Renderer):
             self._derived_string_block_size()['width']
         )
     
-    def render(self, mode='format_string_list'):
+    def render(self, mode):
         if mode == 'format_string_list':
             return self._string_block.format_string_list
         elif mode == 'format_string':

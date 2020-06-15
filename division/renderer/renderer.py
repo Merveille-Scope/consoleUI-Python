@@ -11,7 +11,7 @@ class Renderer:
         self._render_styles['height'] = height
         self._render_styles['width'] = width
 
-    def render(self):
+    def render(self, mode):
         raise NotImplementedError(
             "%s is an abstract class, you should either use ContentDivision or ContainerDivision to make it work." 
             % type(self)
