@@ -25,6 +25,10 @@ class ContentRenderer(Renderer):
             return self._string_block.format_string_list
         elif mode == 'format_string':
             return self._string_block.format_string_block
+        elif mode == 'raw_string_list':
+            return self._string_block.raw_string_list
+        elif mode == 'raw_string':
+            return self._string_block.raw_string  # usually nobody deserves this.
     
     def set_string_content(self, string_content: str):
         self._string_block.set_string_content(string_content)

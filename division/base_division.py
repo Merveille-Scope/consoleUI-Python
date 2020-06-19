@@ -117,4 +117,7 @@ class Division(BaseDivision):
     ################
     # API
     ################
+    def print_div(self, mode='format_string_list'):
+        """you should use either ContentDivision or ContainerDivision"""
+        raise NotImplementedError('you should use either ContentDivision or ContainerDivision')
 

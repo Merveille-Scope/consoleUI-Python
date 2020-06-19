@@ -3,6 +3,8 @@ from division import renderer
 
 
 class ContentDivision(Division):
+    _div_type = 'ContentDivision'
+
     def __init__(self, height: int, width: int, parent_division=None, **div_style):
         super().__init__(height, width, parent_division=None, **div_style)
         self._renderer = renderer.ContentRenderer(height=height, width=width)

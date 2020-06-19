@@ -23,9 +23,9 @@ class StringBlock:
 
         block_styles:
         - h_trim: about how to trim columns if line count is greater than height.
-            TODO: some style params about how to trim lines over the height.
+            TODO: some style params about how to trim lines over the height or subclass.
         - w_trim: about how to trim rows if character count is greater than width.
-            TODO: some style params about how to trim lines over the width.
+            TODO: some style params about how to trim lines over the width or subclass.
         """
         self._string_content = ''
         self._height = height
@@ -34,6 +34,7 @@ class StringBlock:
         self.set_block_styles(**block_styles)
     
     def set_block_styles(self, **block_styles):
+        # TODO: add alignment style such as center, left aligned, right aligned.
         if block_styles:
             self._trim = True if 'trim' not in block_styles else block_styles['trim']
             self._h_trim = block_styles.get('h_trim')
@@ -57,7 +58,7 @@ class StringBlock:
             self._width = size['width']
     
     def set_string_content(self, string_content):
-        string_content = string_content.replace('\t', '    ').replace('\n', ' ')
+        string_content = string_content.replace('\t', '    ')
         # replace: invisible character must have constant length.
         self._string_content = string_content
     
@@ -74,6 +75,12 @@ class StringBlock:
         string_list = []
 
         for character in character_list:
+            # if there's a \n, need to go to the next line.
+            if character == '\n':
+                blank_fill = self._width - StringBlock._char_list_length(current_line)
+                current_line.append(' ' * blank_fill)  # fill the line with ' ' to the max width.
+                # then the coming if will definitely find that whatever the next character is,
+                # it will reach over the max width.
             # if next character will make current line become too long.
             if (StringBlock._char_list_length(current_line) + StringBlock.character_width(character)) > self._width:
                 # save it to the next line's first character.
@@ -95,15 +102,35 @@ class StringBlock:
     
     def _form_format_string_list(self):
         """
-        it will make sure everyline appears in same length by filling blank(' ') to line shorter than width.
+        it will make sure every line appears in same length by filling blank(' ') to line shorter than width.
         """
         raw_string_list = self.raw_string_list
         format_string_list = []
-        for string in raw_string_list:
-            line_length = StringBlock.string_length(string)
-            string += ' ' * (self._width - line_length)
-            format_string_list.append(string)
+        for string_line in raw_string_list:
+            line_length = StringBlock.string_length(string_line)
+            string_line = StringBlock.fill_line(string_line, self._width)
+            # string_line += ' ' * (self._width - line_length)  # fill_line() should do this.
+            format_string_list.append(string_line)
         return format_string_list
+
+    @staticmethod
+    def fill_line(line_to_fill: str, total_length: int, filler: str = ' ', alignment='left'):
+        """
+        fill line_to_fill till the appeared width reaches total_length by filler, returns filled line
+        """
+        filler_width = StringBlock.string_length(filler)
+        line_width = StringBlock.string_length(line_to_fill)
+        need_to_fill = total_length - line_width
+        filler_count = need_to_fill // filler_width
+        line_to_fill += filler * filler_count
+        # in some case the filler can't just fill the line.
+        if total_length - StringBlock.string_length(line_to_fill):
+            if alignment == 'right':
+                line_to_fill = ' ' * (total_length - StringBlock.string_length(line_to_fill)) + line_to_fill
+            # TODO: alignment == 'center'
+            else:  # alignment == 'left' by default.
+                line_to_fill += ' ' * (total_length - StringBlock.string_length(line_to_fill))
+        return line_to_fill
 
     def _form_format_string(self):
         string_list = self.format_string_list
@@ -197,6 +224,10 @@ class StringBlock:
         simply get the raw string, which is what you put in.
         """
         return self._string_content
+
+    @property
+    def size(self):
+        return {'height': self._height, 'width': self._width}
     
     @staticmethod
     def string_length(string):
@@ -234,6 +265,7 @@ class StringBlock:
     # def next_line_append(self, format_string_list_trimmed):
     #     pass
     #
+
 
 if __name__ == "__main__":
     string = """
